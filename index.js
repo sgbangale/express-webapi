@@ -1,5 +1,5 @@
-// import dotenv from 'dotenv';
-// dotenv.load();
+import dotenv from 'dotenv';
+dotenv.load();
 
 import db from './db';
 import express from 'express';
