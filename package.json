@@ -6,7 +6,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "babel-node index.js",
-    "nodemon":"nodemon index.js --exec babel-node"
+    "build" :"babel src -d lib",
+    "nodemon":"nodemon index.js --exec babel-node",
+    "prod": "nodemon ./lib/index.js"
+
   },
   "author": "suraj bangale sgbangale@gmail.com",
   "license": "MIT",
