@@ -4,6 +4,7 @@ dotenv.load();
 
 import express from 'express';
 import bodyParser from 'body-parser';
+import morgan from 'mogan';
 import mongoose from 'mongoose';
 import taskRoutes from './routes/taskRoute';
 import userRoutes from './routes/userRoute';
@@ -15,7 +16,7 @@ mongoose.connect(process.env.mongocs);
 app.disable('x-powered-by');
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-
+app.use(mogan('dev'));
 
 app.use('/auth', accoountRoutes);
 app.use('/api/users', userRoutes);
