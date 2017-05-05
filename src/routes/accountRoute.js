@@ -1,33 +1,39 @@
 import express from 'express'
 var router = express.Router();
 import user from '../models/user';
+import role from '../models/role'
 import jwt from 'jsonwebtoken';
 
-router.post('/', function(req, res) {
-    console.log(req.body.EmailAddress);
+router.post('/', function (req, res) {
     user.findOne({
         emailAddress: req.body.EmailAddress
-    }, function(e, user) {
+    }).populate('roles.roleaccess').exec(function (e, user) {
         if (e) {
             return res.status(200).send('invalid email address or password.[error in finding user]')
         }
         else {
-            console.log(user);
             if (user) {
-                user.comparePassword(req.body.Password, function(ismatch) {
+                user.comparePassword(req.body.Password, function (ismatch) {
                     if (ismatch) {
-                        var token = jwt.sign({
-                            EmailAddress: user.emailAddress,
-                            FirstName: user.firstName,
-                            LastName: user.lastName,
-                            Id: user._id
-                        }, 'supersecrete', {
-                            expiresIn: 1440
-                        });
-                        return res.status(200).send({
-                            success: true,
-                            message: 'Enjoy your token!',
-                            token: token
+                        role.findById(user.role, function (e, role) {
+                            var token = jwt.sign(
+                                {
+                                    User: {
+                                        EmailAddress: user.emailAddress,
+                                        FirstName: user.firstName,
+                                        LastName: user.lastName,
+                                        Id: user._id
+                                    },
+                                    Role: role
+                                }, process.env.SECRET, {
+                                    expiresIn: process.env.TOKEN_TIME_EXPIRE_IN_SECOND
+                                });
+                            return res.status(200).send({
+                                success: true,
+                                message: 'Enjoy your token!',
+                                token: token
+                            });
+
                         });
                     }
                     else {
@@ -43,16 +49,16 @@ router.post('/', function(req, res) {
     });
 });
 
-router.post('/forgetPassword', function(req, res) {
+router.post('/forgetPassword', function (req, res) {
     user.findOne({
         emailAddress: req.body.EmailAddress
-    }, function(e, user) {
+    }, function (e, user) {
         if (e) {
             return res.status(200).send('email address is not found in the system.');
         }
         else {
             user.password = 'password';
-            user.save(function(e, user) {
+            user.save(function (e, user) {
                 if (user) {
                     return res.status(200).send('password is changed to default password "password"');
                 }
@@ -64,16 +70,16 @@ router.post('/forgetPassword', function(req, res) {
         }
     });
 });
-router.post('/changePassword', function(req, res) {
+router.post('/changePassword', function (req, res) {
     user.findOne({
         emailAddress: req.body.EmailAddress
-    }, function(e, user) {
+    }, function (e, user) {
         if (e) {
             return res.status(200).send('email address is not found in the system.');
         }
         else {
             user.password = req.body.Password;
-            user.save(function(e, user) {
+            user.save(function (e, user) {
                 if (user) {
                     return res.status(200).send('password is changed to default password "password"');
                 }

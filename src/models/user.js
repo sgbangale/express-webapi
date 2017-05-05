@@ -4,7 +4,8 @@ var UserSchema = mongoose.Schema({
     emailAddress : {type : String,unique:true,lowercase: true,trim : true},
     password :{type : String,trim : true},
     firstName : {type : String},
-    lastName :{type : String}
+    lastName :{type : String},
+    role:{type:mongoose.Schema.Types.ObjectId,ref:'roles'}
 });
 
 UserSchema.pre('save', function(next){
@@ -15,7 +16,6 @@ UserSchema.pre('save', function(next){
         next();        
       });
 });
-
 
 UserSchema.methods.comparePassword = function(attemptedPassword, callback) {
   bcrypt.compare(attemptedPassword, this.password, function(err, isMatch) {
